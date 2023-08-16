@@ -1,4 +1,4 @@
-export const VERSION = '0.0.7';
+export const VERSION = '0.0.8';
 
 // const date = new Date();
 // export const START_TIME = date.getHours() + date.getMinutes() / 60;
