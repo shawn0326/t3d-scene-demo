@@ -2,7 +2,7 @@ import { BLEND_TYPE, TEXTURE_WRAP, Scene, TEXTURE_FILTER } from 't3d';
 import { ReflectionProbe } from 't3d/examples/jsm/probes/ReflectionProbe.js';
 import { Texture2DLoader } from 't3d/examples/jsm/loaders/Texture2DLoader.js';
 import { TextureCubeLoader } from 't3d/examples/jsm/loaders/TextureCubeLoader.js';
-import { SkyPrecomputeUtil, Clouds, Stars, Sky, SkyTimeline } from './libs/t3d-dynamic-sky/t3d.dynamicsky.module.js';
+import { SkyPrecomputeUtil, Clouds, Stars, Sky, SkyTimeline } from 't3d-dynamic-sky';
 import { isNight } from './Utils.js';
 
 import {

@@ -1,6 +1,6 @@
 # t3d-scene-demo
 
-使用[t3d.js](https://github.com/UINOSOFT/t3d.js)开发的场景渲染示例。
+使用[t3d.js](https://github.com/uinosoft/t3d.js)开发的场景渲染示例。
 
 [在线预览](https://shawn0326.github.io/t3d-scene-demo/)
 

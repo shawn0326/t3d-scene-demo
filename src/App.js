@@ -2,7 +2,7 @@ import {
   Scene,
   Camera,
   LoadingManager,
-  Renderer,
+  WebGLRenderer,
   RenderTargetBack,
   ShadowMapPass,
   TEXEL_ENCODING_TYPE,
@@ -88,10 +88,10 @@ export class App {
 
     const contextParams = { antialias: true, alpha: false, stencil: false };
     const gl = canvas.getContext('webgl2', contextParams) || canvas.getContext('webgl', contextParams);
-    const renderer = new Renderer(gl);
+    const renderer = new WebGLRenderer(gl);
     const backRenderTarget = new RenderTargetBack(canvas);
 
-    const capabilities = renderer.renderPass.capabilities;
+    const capabilities = renderer.capabilities;
 
     // Effect Composer
 
@@ -298,7 +298,7 @@ export class App {
 
     this._shadowMapPass.render(this._renderer, this._scene);
 
-    this._renderer.renderPass.setClearColor(0, 0, 0, 1);
+    this._renderer.setClearColor(0, 0, 0, 1);
     this._effectComposer.render(this._renderer, this._scene, this._camera, this._backRenderTarget);
 
     this._stats.end();
