@@ -17,7 +17,7 @@ export class EffectComposer extends DefaultEffectComposer {
   constructor(width, height, options) {
     super(width, height, options);
 
-    this.getBuffer('SceneBuffer').setOutputEncoding(TEXEL_ENCODING_TYPE.GAMMA);
+    this.getBuffer('SceneBuffer').setOutputEncoding(TEXEL_ENCODING_TYPE.SRGB);
     this.getBuffer('SceneBuffer').renderLayers.unshift({ id: 2, mask: RenderListMask.ALL });
 
     // Fix foliage under snow

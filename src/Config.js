@@ -15,9 +15,9 @@ export const LIGHT_EXPOSURE = 1;
 
 export const MAX_LIGHT_FACTOR = 1;
 
-export const HEMLIGHT_STRENGTH = 0.4;
+export const HEMLIGHT_STRENGTH = 0.1;
 
-export const SUNLIGHT_STRENGTH = 1.5;
+export const SUNLIGHT_STRENGTH = 3.5;
 
 export const MOONLIGHT_STRENGTH = 0.6;
 

@@ -139,8 +139,7 @@ export class App {
     // Camera
 
     const camera = new Camera();
-    camera.gammaFactor = 1.9;
-    camera.outputEncoding = TEXEL_ENCODING_TYPE.GAMMA;
+    camera.outputEncoding = TEXEL_ENCODING_TYPE.SRGB;
     const viewArray = CAMERA_VIEW[isPC() ? 'right_front' : 'far_left_front'];
     camera.position.fromArray(viewArray);
     camera.lookAt(new Vector3(0, 0, 0), new Vector3(0, 1, 0));
