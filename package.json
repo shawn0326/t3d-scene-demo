@@ -9,15 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tweenjs/tween.js": "^21.0.0",
-    "lil-gui": "^0.18.0",
+    "@tweenjs/tween.js": "^23.1.2",
+    "lil-gui": "^0.19.2",
     "nanobar": "^0.4.2",
     "stats.js": "^0.17.0",
     "t3d": "^0.2.0",
     "t3d-dynamic-sky": "^0.1.0",
-    "t3d-effect-composer": "^0.1.0"
+    "t3d-effect-composer": "^0.2.0"
   },
   "devDependencies": {
-    "vite": "^4.2.0"
+    "vite": "^5.2.11"
   }
 }
