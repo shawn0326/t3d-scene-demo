@@ -1,5 +1,6 @@
 import { TEXEL_ENCODING_TYPE, TEXTURE_WRAP } from 't3d';
 import { Texture2DLoader } from 't3d/examples/jsm/loaders/Texture2DLoader.js';
+import { ClusteredLightingManager } from 't3d/examples/jsm/render/ClusteredLightingManager.js';
 
 import { DefaultEffectComposer, RenderListMask } from 't3d-effect-composer';
 import { Inspector } from 't3d-effect-composer/examples/jsm/Inspector.js';
@@ -16,6 +17,39 @@ import { GUI } from 'lil-gui';
 export class EffectComposer extends DefaultEffectComposer {
   constructor(width, height, options) {
     super(width, height, options);
+
+    this.getBuffer('SceneBuffer')._sceneRenderOptions.beforeRender = renderable => {
+      const renderMode = this.renderMode;
+      const lightingManager = this._lightingManager;
+      const material = renderable.material;
+      if (material.shaderName === 'ClusteredLightingPBR') {
+        const useClusterLighting = renderMode !== 'Forward';
+        if (material.defines.CLUSTER_LIGHT !== useClusterLighting) {
+          material.defines.CLUSTER_LIGHT = useClusterLighting;
+          material.needsUpdate = true;
+        }
+
+        const clusterDebug = renderMode === 'Forward+Debug';
+        if (material.defines.CLUSTER_DEBUG !== clusterDebug) {
+          material.defines.CLUSTER_DEBUG = clusterDebug;
+          material.needsUpdate = true;
+        }
+
+        material.uniforms.maxLightsPerCell = lightingManager.maxLightsPerCell;
+
+        if (!material._linkedUniforms) {
+          material.uniforms.cells = lightingManager.cells;
+          material.uniforms.cellsDotData = lightingManager.cellsDotData;
+          material.uniforms.cellsTextureSize = lightingManager.cellsTextureSize;
+          material.uniforms.cellsTransformFactors = lightingManager.cellsTransformFactors;
+
+          material.uniforms.cellsTexture = lightingManager.cellsTexture;
+          material.uniforms.lightsTexture = lightingManager.lightsTexture;
+
+          material._linkedUniforms = true;
+        }
+      }
+    };
 
     this.getBuffer('SceneBuffer').setOutputEncoding(TEXEL_ENCODING_TYPE.SRGB);
     this.getBuffer('SceneBuffer').renderLayers.unshift({ id: 2, mask: RenderListMask.ALL });
@@ -51,7 +85,13 @@ export class EffectComposer extends DefaultEffectComposer {
     this._syncAttachments();
 
     this.lensflareDebugger = new LensflareDebugger();
+    this.renderMode = 'Forward+';
 
+    this._lightingManager = new ClusteredLightingManager({
+      maxLights: 128,
+      maxLightsPerCell: 64,
+      floatLights: false
+    });
     this._inspector = null;
   }
 
@@ -78,7 +118,8 @@ export class EffectComposer extends DefaultEffectComposer {
     const ssrEffect = this.getEffect('SSR');
     ssrEffect.active = quality === 'High';
     ssrEffect.minGlossiness = 0.7;
-    ssrEffect.strength = 0.1;
+    ssrEffect.strength = 0.9;
+    ssrEffect.falloff = 0.9;
 
     const blurEdgeEffect = this.getEffect('BlurEdge');
     blurEdgeEffect.active = quality !== 'Low';
@@ -93,6 +134,16 @@ export class EffectComposer extends DefaultEffectComposer {
     bloomEffect.smoothWidth = 0.3;
     bloomEffect.blurSize = 3;
     bloomEffect.strength = 0.6;
+  }
+
+  render(renderer, scene, camera, renderTarget) {
+    const renderStates = scene.getRenderStates(camera);
+    this._lightingManager.update(renderStates.camera, renderStates.lights, true);
+    renderStates.lights.totalNum -= renderStates.lights.pointsNum;
+    renderStates.lights.pointsNum = 0;
+    renderStates.lights.hash._factor[4] = 0;
+
+    super.render(renderer, scene, camera, renderTarget);
   }
 
   toggleInspector() {

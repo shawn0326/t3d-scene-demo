@@ -10,7 +10,11 @@ import {
   Vector3,
   DRAW_SIDE,
   DirectionalLight,
-  HemisphereLight
+  HemisphereLight,
+  SphereGeometry,
+  PointLight,
+  BasicMaterial,
+  Mesh
 } from 't3d';
 import { Clock } from 't3d/examples/jsm/Clock.js';
 import { GLTFLoader } from 't3d/examples/jsm/loaders/glTF/GLTFLoader.js';
@@ -29,6 +33,8 @@ import { SkyDome } from './SkyDome.js';
 import { EffectComposer } from './EffectComposer.js';
 
 import { default as TWEEN } from '@tweenjs/tween.js';
+
+import { MaterialParser } from './externals/MaterialParser.js';
 
 import {
   VERSION,
@@ -72,6 +78,7 @@ export class App {
     dracoLoader.setDecoderPath('./libs/draco/');
 
     const gltfLoader = new GLTFLoader(loadingManager);
+    gltfLoader.replaceParser(MaterialParser, 7);
     gltfLoader.setDRACOLoader(dracoLoader);
 
     // const textureFlare0 = textureLoader.load("./textures/lensflare/lensflare0.png");
@@ -236,6 +243,31 @@ export class App {
           node.receiveShadow = true;
         }
       });
+
+      // test lights
+
+      const helpherGeometry = new SphereGeometry(0.2);
+      for (let i = 0; i < 128; i++) {
+        const pointLight = new PointLight(undefined, 1, 10);
+        pointLight.color.setHex(0xffffff);
+        pointLight.position.y = Math.random() * 8 + 5;
+
+        pointLight._angle = Math.PI * 2 * Math.random();
+        pointLight._radius = Math.random() * 30 + 20;
+        pointLight._speed = (Math.random() - 0.5) * 0.03;
+
+        pointLight.position.x = Math.cos(pointLight._angle) * pointLight._radius;
+        pointLight.position.z = Math.sin(pointLight._angle) * pointLight._radius;
+
+        const mesh = new Mesh(helpherGeometry, new BasicMaterial());
+        mesh.material.diffuse.setHex(0xcccccc);
+        mesh.material.envMap = undefined;
+        pointLight.add(mesh);
+
+        scene.add(pointLight);
+      }
+
+      //
 
       scene.add(root);
 
@@ -488,6 +520,7 @@ export class App {
       },
       'logCamera'
     );
+    debugFolder.add(this._effectComposer, 'renderMode', ['Forward', 'Forward+', 'Forward+Debug']);
     debugFolder.add({ debugger: 'None' }, 'debugger', ['None', 'Lensflare']).onChange(value => {
       if (value === 'Lensflare') {
         this._effectComposer.debugger = this._effectComposer.lensflareDebugger;
