@@ -1,9 +1,9 @@
 export const VERSION = '0.0.8';
 
-// const date = new Date();
-// export const START_TIME = date.getHours() + date.getMinutes() / 60;
+const date = new Date();
+export const START_TIME = date.getHours() + date.getMinutes() / 60;
 
-export const START_TIME = 13;
+// export const START_TIME = 13;
 
 export const SUN_EQUATOR_OFFSET = -40;
 

@@ -133,7 +133,7 @@ export class EffectComposer extends DefaultEffectComposer {
     bloomEffect.threshold = 0.7;
     bloomEffect.smoothWidth = 0.3;
     bloomEffect.blurSize = 3;
-    bloomEffect.strength = 0.6;
+    bloomEffect.strength = 0.3;
   }
 
   render(renderer, scene, camera, renderTarget) {

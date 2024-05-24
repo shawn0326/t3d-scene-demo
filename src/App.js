@@ -10,11 +10,7 @@ import {
   Vector3,
   DRAW_SIDE,
   DirectionalLight,
-  HemisphereLight,
-  SphereGeometry,
-  PointLight,
-  BasicMaterial,
-  Mesh
+  HemisphereLight
 } from 't3d';
 import { Clock } from 't3d/examples/jsm/Clock.js';
 import { GLTFLoader } from 't3d/examples/jsm/loaders/glTF/GLTFLoader.js';
@@ -31,6 +27,7 @@ import Nanobar from 'nanobar';
 import { isNight, isPC, mix } from './Utils.js';
 import { SkyDome } from './SkyDome.js';
 import { EffectComposer } from './EffectComposer.js';
+import { LightsManager } from './LightsManager.js';
 
 import { default as TWEEN } from '@tweenjs/tween.js';
 
@@ -143,6 +140,9 @@ export class App {
     hemisphereLight.intensity = HEMLIGHT_STRENGTH;
     scene.add(hemisphereLight);
 
+    this.lightsManager = new LightsManager();
+    this.lightsManager.setDefault();
+
     // Camera
 
     const camera = new Camera();
@@ -215,7 +215,7 @@ export class App {
     });
 
     console.time('GLTFLoader');
-    gltfLoader.load('./models/B23A_compress.glb').then(result => {
+    gltfLoader.load('./models/uino-scene.glb').then(result => {
       console.timeEnd('GLTFLoader');
 
       const root = result.root;
@@ -242,32 +242,11 @@ export class App {
           node.castShadow = true;
           node.receiveShadow = true;
         }
+
+        if (node.isPointLight) {
+          this.lightsManager.addLight(node);
+        }
       });
-
-      // test lights
-
-      const helpherGeometry = new SphereGeometry(0.2);
-      for (let i = 0; i < 128; i++) {
-        const pointLight = new PointLight(undefined, 1, 10);
-        pointLight.color.setHex(0xffffff);
-        pointLight.position.y = Math.random() * 8 + 5;
-
-        pointLight._angle = Math.PI * 2 * Math.random();
-        pointLight._radius = Math.random() * 30 + 20;
-        pointLight._speed = (Math.random() - 0.5) * 0.03;
-
-        pointLight.position.x = Math.cos(pointLight._angle) * pointLight._radius;
-        pointLight.position.z = Math.sin(pointLight._angle) * pointLight._radius;
-
-        const mesh = new Mesh(helpherGeometry, new BasicMaterial());
-        mesh.material.diffuse.setHex(0xcccccc);
-        mesh.material.envMap = undefined;
-        pointLight.add(mesh);
-
-        scene.add(pointLight);
-      }
-
-      //
 
       scene.add(root);
 
@@ -360,6 +339,8 @@ export class App {
     }
 
     this._effectComposer.getEffect('Bloom').active = (time >= 18 && time <= 24) || time < 4;
+
+    this.lightsManager.setTime(time);
   }
 
   initGUI() {
@@ -507,6 +488,38 @@ export class App {
         this._effectComposer.setRenderQuality(quality);
       });
     effectFolder.close();
+
+    // Lights
+
+    const lightsFolder = gui.addFolder('Lights').close();
+    const streetLampsFolder = lightsFolder.addFolder('StreetLamps').onChange(() => {
+      this.lightsManager.streetLamps.update(this.lightsManager);
+    });
+    streetLampsFolder.add(this.lightsManager.streetLamps, 'intensity', 0, 4, 0.01);
+    streetLampsFolder.addColor(this.lightsManager.streetLamps, 'color');
+    streetLampsFolder.add(this.lightsManager.streetLamps, 'distance', 0, 100, 0.1);
+    streetLampsFolder.add(this.lightsManager.streetLamps, 'decay', 0, 4, 0.01);
+    const poolLightsFolder = lightsFolder.addFolder('PoolLights').onChange(() => {
+      this.lightsManager.poolLights.update(this.lightsManager);
+    });
+    poolLightsFolder.add(this.lightsManager.poolLights, 'intensity', 0, 4, 0.01);
+    poolLightsFolder.addColor(this.lightsManager.poolLights, 'color');
+    poolLightsFolder.add(this.lightsManager.poolLights, 'distance', 0, 100, 0.1);
+    poolLightsFolder.add(this.lightsManager.poolLights, 'decay', 0, 4, 0.01);
+    const lawnLampsFolder = lightsFolder.addFolder('LawnLamps').onChange(() => {
+      this.lightsManager.lawnLamps.update(this.lightsManager);
+    });
+    lawnLampsFolder.add(this.lightsManager.lawnLamps, 'intensity', 0, 4, 0.01);
+    lawnLampsFolder.addColor(this.lightsManager.lawnLamps, 'color');
+    lawnLampsFolder.add(this.lightsManager.lawnLamps, 'distance', 0, 100, 0.1);
+    lawnLampsFolder.add(this.lightsManager.lawnLamps, 'decay', 0, 4, 0.01);
+    const doorLightsFolder = lightsFolder.addFolder('DoorLights').onChange(() => {
+      this.lightsManager.doorLights.update(this.lightsManager);
+    });
+    doorLightsFolder.add(this.lightsManager.doorLights, 'intensity', 0, 4, 0.01);
+    doorLightsFolder.addColor(this.lightsManager.doorLights, 'color');
+    doorLightsFolder.add(this.lightsManager.doorLights, 'distance', 0, 100, 0.1);
+    doorLightsFolder.add(this.lightsManager.doorLights, 'decay', 0, 4, 0.01);
 
     // Debug
 
